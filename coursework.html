@@ -424,8 +424,29 @@
                 //Simply reducing the space in the course array and implementing it in the cart_array
                 addItem(subject) {
                     if(subject.Space > 0) {
-                        this.cart_array.push(subject);
-                        subject.Space--;
+                        // Make an API call to decrement the course quantity and add to cart
+                        fetch(`http://localhost:3000/collections/courses/${subject._id}/add-to-cart`, {
+                            method: 'PUT',
+                            headers: {
+                                'Content-Type': 'application/json',
+                            },
+                        })
+                        .then(response => {
+                            if (!response.ok) {
+                                throw new Error('Failed to add course to cart');
+                            }
+                            return response.json();
+                        })
+                        .then(data => {
+                            console.log('Course added to cart:', data);
+
+                            // Update frontend data after successful API call
+                            this.cart_array.push(subject); // Add the course to the cart array
+                            subject.Space--; // Decrement Space locally for UI
+                        })
+                        .catch(error => {
+                            console.error('Error adding course to cart:', error.message);
+                        });
                     }
                 },
 
