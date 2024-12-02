@@ -255,7 +255,7 @@
                         <img :src="subject.image" :alt="subject.name" class="course-image">
                         <div class="course-info">
                             <h3>{{ subject.name }}</h3>
-                            <p>Location: {{ subject.Location }}</p>
+                            <p>Location: {{ subject.location }}</p>
                             <span class="course-price">Prics: Rs{{ subject.Price }}</span>
                             <p>Spaces Left: {{ subject.Space }}</p>
                         </div>
@@ -281,7 +281,7 @@
                         <div v-for="item in cart_array" :key="item.id" class="cart-course-card">
                             <div class="cart-course-content">
                                 <h3>{{ item.name }}</h3>
-                                <p>Location: {{ item.Location }}</p>
+                                <p>Location: {{ item.location }}</p>
                                 <p>Price: Rs{{ item.Price }}</p>
                             </div>
                             <button @click="removeItem(item)" class="remove-btn">Remove</button>
