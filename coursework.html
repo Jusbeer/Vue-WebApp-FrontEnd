@@ -1,0 +1,516 @@
+<!--Website with navigation bar, displaying 1 course, and navigation between various pages and cart webpage-->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Coursework 1</title>
+    <script src="https://cdn.jsdelivr.net/npm/vue@2.6.14/dist/vue.js"></script>
+    <script src="courses.js"></script>
+
+    <style>
+        body{
+            background-color: #d8e9fc;
+        }
+
+        .navbar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background-color: #d0cd92;
+            padding: 10px 20px;
+        }
+        .navbar-links a {
+            text-decoration: none;
+            margin: 0 10px;
+            color: #000000;
+            font-weight: bold;
+            font-size: large;
+        }
+        .cart-button {
+            display: flex;
+            align-items: center;
+        }
+        .cart-button span {
+            margin-right: 10px;
+        }
+        .cart-button button {
+            background-color: #b6b3b4;
+            color: rgb(0, 0, 0);
+            font-weight: bold;
+            border: none;
+            padding: 10px 15px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .cart-button button img {
+            width: 20px; /* Set the size of the image */
+            margin-right: 10px; /* Space between the image and text */
+        }
+        .cart-count {
+            position: absolute;
+            top: -5px;
+            right: -10px;
+            background-color: red;
+            color: white;
+            border-radius: 50%;
+            padding: 2px 6px;
+            font-size: 0.8em;
+            font-weight: bold;
+        }
+
+        /* Updated Product Card Styling */
+        .course-list {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 20px;
+            justify-content: center;
+            padding: 20px;
+        }
+        .course-card {
+            display: flex;
+            width: 350px;
+            height: 250px;
+            border: 1px solid #d0cd9256;
+            background-color: #d0cd9256;
+            border-radius: 8px;
+            overflow: hidden;
+            padding: 10px;
+            margin-bottom: 20px;
+            flex-direction: column;
+        }
+        .content {
+            display: flex;
+            flex-direction: row;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+        .course-card img {
+            width: 150px; /* Small square image on the left */
+            height: 150px;
+            object-fit: cover;
+            border-radius: 8px;
+            margin-right: 20px;
+        }
+        .course-info {
+            flex-grow: 1; /* Allows course info to take up remaining space */
+            display: flex;
+            flex-direction: column;
+            text-align: left;
+            justify-content: flex-start;
+        }
+        .course-title {
+            font-size: 1.2em;
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+        .course-price, .course-location, .course-seats {
+            margin: 5px 0;
+        }
+
+        .add-to-cart-btn {
+            width: 100%;
+            padding: 10px;
+            background-color: #4CAF50;
+            color: black;
+            font-weight: bold;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            cursor: pointer;
+            text-align: center;
+        }
+        .add-to-cart-btn:disabled {
+            background-color: #ccc;
+            color: #666;
+            cursor: not-allowed;
+        }
+
+        .cart-form h3 {
+            align-self: center;
+        }
+        /* Styling the product(s) in the cart page*/
+        .cart-course-list {
+            display: flex;
+            flex-wrap: wrap;
+            padding: 20px;
+            justify-content: flex-start;
+            background-color: #ffffff64;
+        }
+        .cart-course-card {
+            display: flex;
+            width: 200px;
+            height: 200px;
+            padding: 10px;
+            border: 1px solid #d0cd9256;
+            background-color: #d0cd9256;
+            border-radius: 8px;
+            overflow: hidden;
+            justify-content: space-between;
+            margin-bottom: 20px;
+            flex-direction: column;
+            align-items: center;
+        }
+        .cart-course-content {
+            display: flex;
+            flex-direction: column;
+            text-align: center;
+        }
+        .remove-btn {
+            width: 100%;
+            background-color: red;
+            color: white;
+            border: none;
+            padding: 5px 10px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 0.9em;
+        }
+        .remove-btn:hover {
+            background-color: darkred;
+        }
+
+        .cart-form {
+        margin-top: 20px;
+        background-color: #ffffff64;
+        padding: 20px;
+        border-radius: 8px;
+        box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
+        }
+        .form-row {
+            display: flex;
+            gap: 20px;
+            margin-bottom: 15px;
+        }
+        .form-group {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+        }
+        .form-group label {
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+        .form-group input,
+        .form-group select {
+            padding: 10px;
+            font-size: 1em;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+        }
+
+    </style>
+</head>
+<body>
+    <div id="tuition">
+        <!--List of all section on the nav bar-->
+        <div class="navbar">
+            <div class="navbar-links">
+                <a href="#" v-on:click="setActive('Home')" v-bind:style="activeNav === 'Home' ? activeStyle : inactiveStyle">Home</a>
+                <a href="#" v-on:click="setActive('Product')" v-bind:style="activeNav === 'Product' ? activeStyle : inactiveStyle">Product</a>
+                <a href="#" v-on:click="setActive('Profile')" v-bind:style="activeNav === 'Profile' ? activeStyle : inactiveStyle">Profile</a>
+            </div>
+            <div class="cart-button" style="position: relative;">
+                <button @click="viewCart = true"><img src="cartIcon.png">Cart</button>
+                <span v-if="cart_array.length > 0" class="cart-count">{{ cart_array.length }}</span>
+            </div>
+        </div>
+        
+        <!--Using v-if to navigate between various webpages-->
+
+        <!--Content for Home page-->
+        <div v-if="activeNav === 'Home' && !viewCart">
+            <h1>Book An Afterschool Class</h1>
+            <h5>explore our amazing courses at a cheap price</h5>
+        </div>
+
+        <!--Content for Product page-->
+        <div v-if="activeNav === 'Product' && !viewCart">
+            <h1>{{message1}}</h1>
+            <!--Input field where the user can search for specific course-->
+            <input type="text"placeholder="Search lessons..."v-model="searchQuery"@input="searchLessons"/>
+            
+            
+            <div>
+                <!--Sorting attribute to sort the course base on either their Name, Location, Price, or Seats available-->
+                <label for="sortAttribute">Sort by:</label>
+                <select v-model="sortAttribute" id="sortAttribute">
+                    <option value="name">name</option>
+                    <option value="Location">Location</option>
+                    <option value="Price">Price</option>
+                    <option value="Space">Space</option>
+                </select>
+            
+                <!--This button will switch between ascending order or descending order-->
+                <button @click="toggleSortOrder">
+                    Sort {{ sortOrder === 'asc' ? 'Ascending' : 'Descending' }}
+                </button>
+            </div>
+
+            <!--Here we are displaying the list of courses and their details from the array mentioned in the vue instance below-->
+            <div class="course-list">
+                <div class="course-card" v-for="subject in sortCourses" :key="subject.id">
+                    <div class="content">
+                        <img :src="subject.image" :alt="subject.name" class="course-image">
+                        <div class="course-info">
+                            <h3>{{ subject.name }}</h3>
+                            <p>Location: {{ subject.Location }}</p>
+                            <span class="course-price">Prics: Rs{{ subject.Price }}</span>
+                            <p>Spaces Left: {{ subject.Space }}</p>
+                        </div>
+                    </div>
+                    <!--using v-on to link the "addItem" methods when clicking on the button-->
+                    <button class="add-to-cart-btn" v-on:click="addItem(subject)" :disabled="subject.Space <= 0" >Add to Cart</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Content for Profile page -->
+        <div v-if="activeNav === 'Profile' && !viewCart">
+            <h1>User Profile</h1>
+            <p>Manage your account and settings here.</p>
+        </div>
+
+        <!-- Content for Cart page -->
+        <div v-if="viewCart">
+            <div class="Checkout-Page">
+                <h1>Your Cart</h1>
+                <div class="cart-course-list">
+                    <div v-if="cart_array.length > 0">
+                        <div v-for="item in cart_array" :key="item.id" class="cart-course-card">
+                            <div class="cart-course-content">
+                                <h3>{{ item.name }}</h3>
+                                <p>Location: {{ item.Location }}</p>
+                                <p>Price: Rs{{ item.Price }}</p>
+                            </div>
+                            <button @click="removeItem(item)" class="remove-btn">Remove</button>
+                        </div>
+                    </div>
+                    <p v-else>Your cart is empty.</p>
+
+                </div>
+
+                <!-- Checkout Form -->
+                <h1>Checkout Form</h1>
+                <div class="cart-form">
+                    <form @submit.prevent="submitForm">
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="firstName">First Name:</label>
+                                <input type="text" id="firstName" v-model="firstName" class="form-control" placeholder="Enter First Name" required />
+                                <small v-if="!isNameValid && name.length > 0" style="color: red;">Name must contain letters only.</small>
+                            </div>
+                            <div class="form-group">
+                                <label for="lastName">Last Name:</label>
+                                <input type="text" id="lastName" v-model="lastName" class="form-control" placeholder="Enter Last Name" required />
+                            </div>
+                        </div>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="address">Address:</label>
+                                <input type="text" id="address" v-model="address" class="form-control" placeholder="Enter Address" required />
+                            </div>
+                        </div>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="city">City:</label>
+                                <input type="text" id="city" v-model="city" class="form-control" placeholder="Enter City" required />
+                            </div>
+                            <div class="form-group">
+                                <label for="state">State:</label>
+                                <select id="state" v-model="state" class="form-control" required>
+                                    <option value="" disabled>Select State</option>
+                                    <option v-for="state in states" :key="state" :value="state">{{ state }}</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label for="phone">Phone Number:</label>
+                                <input type="text" id="phone" v-model="phone" class="form-control" placeholder="Enter Phone Number" required />
+                                <small v-if="!isPhoneValid && phone.length > 0 " style="color: red;">Phone must contain numbers only.</small>
+                            </div>
+                        </div>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="shipping">Shipping Method:</label>
+                                <input type="checkbox" id="shipping" v-model="isGift" /> Ship As Gift?
+                            </div>
+                            <div class="form-group">
+                                <label>Delivery Method:</label>
+                                <div>
+                                    <input type="radio" id="home" value="Home" v-model="deliveryMethod" />
+                                    <label for="home">Home</label>
+                                    <input type="radio" id="business" value="Business" v-model="deliveryMethod" />
+                                    <label for="business">Business</label>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <button type="submit" class="submit-btn" :disabled="!isFormValid">Place Order</button>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+                
+                <!-- Order Preview -->
+                <div class="mt-5">
+                    <h4>Order Preview</h4>
+                    <p><strong>First Name:</strong> {{ firstName }}</p>
+                    <p><strong>Last Name:</strong> {{ lastName }}</p>
+                    <p><strong>Address:</strong> {{ address }}</p>
+                    <p><strong>City:</strong> {{ city }}</p>
+                    <p><strong>State:</strong> {{ state }}</p>
+                    <p><strong>Zip:</strong> {{ zip }}</p>
+                    <p><strong>Shipping Method:</strong> {{ isGift ? 'Send as Gift' : 'Standard' }}</p>
+                    <p><strong>Delivery Method:</strong> {{ deliveryMethod }}</p>
+                </div>
+                <button @click="viewCart = false">Back to Courses</button>
+            </div>
+        </div>
+    </div>
+
+    <Script>
+        //syntax to create a Vue instance
+        let tuition = new Vue({
+            el:'#tuition', // taking the main function in our html code to 
+            // Everything we declared in the data instance will be link and bind reactively in our html code
+            data: {
+                activeNav: 'Home',
+                viewCart: false,
+                message1: 'Our Courses',
+                activeStyle:{
+                    color: '#b6b3b4',
+                    fontWeight: 'bold'
+                },
+                inactiveStyle:{
+                    color: '#000000',
+                    fontWeight: 'normal'
+                },
+                sortAttribute: "name", // The default sort attribute
+                sortOrder: "asc", // Default sorting order ascending
+                searchQuery: "", // Search input for lessons
+                // An array where we have predefine all the courses
+                courses: courses,
+                cart_array: [],  // An array to store all the product added to the cart
+                firstName: '',
+                lastName: '',
+                address: '',
+                city: '',
+                state: '',
+                phone: '',
+                isGift: false,
+                deliveryMethod: 'Home',
+                states: ['Curepipe', 'Candos', 'Quatre-Bornes', 'Vacoas', 'Port-Louis', 'Rose-Hill', 'Flic-en-Flac'],
+
+            },
+
+            methods: {
+                fetchCourses(){
+                    fetch("http://localhost:3000/collections/courses")
+                    .then((response) => response.json())
+                    .then((data) => (this.lessons = data))
+                    .catch((error) =>
+                        console.error("Error fetching lessons from backend:", error)
+                    );
+                },
+                setActive(navItem) {
+                    this.activeNav = navItem;
+                },
+
+                //Method to add any item from the course page to the cart page,
+                //Simply reducing the space in the course array and implementing it in the cart_array
+                addItem(subject) {
+                    if(subject.Space > 0) {
+                        this.cart_array.push(subject);
+                        subject.Space--;
+                    }
+                },
+
+                //Method to remove an item from the cart, simply doing opposite of "addItem"
+                removeItem(item) {
+                    // Find the course in the courses array
+                    const course = this.courses.find(course => course.id === item.id);
+
+                    // Increment the space for the corresponding course in the course array
+                    if (course) {
+                        course.Space++;
+                    }
+
+                    // Remove the item from the cart array
+                    const cartIndex = this.cart_array.indexOf(item);
+                    if (cartIndex > -1) {
+                        this.cart_array.splice(cartIndex, 1);
+                    }
+                },
+
+                //Enable swapping from ascending to descending
+                toggleSortOrder() {
+                    this.sortOrder = this.sortOrder === "asc" ? "desc" : "asc";
+                },
+                submitForm() {
+                    alert(`Order placed successfully!\n\n
+                    Name: ${this.firstName} ${this.lastName}\n
+                    Address: ${this.address}, ${this.city}, ${this.state}, ${this.zip}\n
+                    Delivery Method: ${this.deliveryMethod}\n
+                    Shipping: ${this.isGift ? 'As Gift' : 'Standard'}`);
+                    this.resetForm();
+                },
+                resetForm() {
+                    this.firstName = '';
+                    this.lastName = '';
+                    this.address = '';
+                    this.city = '';
+                    this.state = '';
+                    this.phone = '';
+                    this.isGift = false;
+                    this.deliveryMethod = 'Home';
+                },
+
+            },
+
+            computed: {                
+                sortCourses() {
+                    // Filter courses based on search query
+                    let filteredCourse = this.courses.filter((subject) => {
+                        let searchLower = this.searchQuery.toLowerCase(); // Convert search query to lowercase for case-insensitive search
+                        return (
+                            subject.name.toLowerCase().includes(searchLower) || // Search within subject name
+                            subject.Location.toLowerCase().includes(searchLower) || // Search within location
+                            String(subject.Price).includes(searchLower) || // Search within price
+                            String(subject.Space).includes(searchLower) // Search within spaces
+                        );
+                    });
+
+                    // Sort the filtered courses
+                    return filteredCourse.slice().sort((a, b) => {
+                        let comparison = 0;
+
+                        if (this.sortAttribute === "name") {
+                            comparison = a.name.localeCompare(b.name.toLowerCase());
+                        } else if (this.sortAttribute === "Location") {
+                            comparison = a.Location.localeCompare(b.Location.toLowerCase());
+                        } else if (this.sortAttribute === "Price") {
+                            comparison = a.Price - b.Price;
+                        } else if (this.sortAttribute === "Space") {
+                            comparison = a.Space - b.Space;
+                        }
+
+                        return this.sortOrder === "asc" ? comparison : -comparison;
+                    });
+                },
+
+                isNameValid() {
+                    return /^[a-zA-Z\s]+$/.test(this.name);
+                },
+                isPhoneValid() {
+                    return /^[0-9]+$/.test(this.phone);
+                },
+                isFormValid() {
+                    return this.isNameValid && this.isPhoneValid; // Ensure both fields are valid
+                },
+            },
+        });
+    </Script>
+</body>
+</html>
