@@ -452,19 +452,37 @@
 
                 //Method to remove an item from the cart, simply doing opposite of "addItem"
                 removeItem(item) {
-                    // Find the course in the courses array
-                    const course = this.courses.find(course => course.id === item.id);
+                    // Make an API call to increment the course quantity and remove from the cart
+                    fetch(`http://localhost:3000/collections/courses/${item._id}/remove-from-cart`, {
+                        method: 'PUT',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                    })
+                    .then(response => {
+                        if (!response.ok) {
+                            throw new Error('Failed to remove course from cart');
+                        }
+                        return response.json();
+                    })
+                    .then(data => {
+                        console.log('Course removed from cart:', data);
 
-                    // Increment the space for the corresponding course in the course array
-                    if (course) {
-                        course.Space++;
-                    }
+                        // Update frontend data after successful API call
+                        const cartIndex = this.cart_array.indexOf(item);
+                        if (cartIndex > -1) {
+                            this.cart_array.splice(cartIndex, 1); // Remove the item from the cart array
+                        }
 
-                    // Remove the item from the cart array
-                    const cartIndex = this.cart_array.indexOf(item);
-                    if (cartIndex > -1) {
-                        this.cart_array.splice(cartIndex, 1);
-                    }
+                        // Find the course in the courses array and increment its Space
+                        const course = this.courses.find(course => course._id === item._id);
+                        if (course) {
+                            course.Space++; // Increment Space locally for UI
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Error removing course from cart:', error.message);
+                    });
                 },
 
                 //Enable swapping from ascending to descending
