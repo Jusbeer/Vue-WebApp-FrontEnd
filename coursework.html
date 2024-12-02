@@ -409,28 +409,15 @@
                 setActive(navItem) {
                     this.activeNav = navItem;
                 },
-
-                // Fetch sorted courses from the backend
-                async fetchSortedCourses() {
+                async fetchCourses() {
                     try {
-                        const response = await fetch(`http://localhost:3000/collections/courses/sort?sortAttribute=${this.sortAttribute}&sortOrder=${this.sortOrder}`);
-                        if (!response.ok) throw new Error('Failed to fetch sorted courses');
+                        const response = await fetch('http://localhost:3000/collections/courses');
+                        if (!response.ok) throw new Error('Failed to fetch courses');
                         this.courses = await response.json();
-                        console.log('Sorted Courses:', this.courses);
+                        console.log('Fetched Courses:', this.courses);
                     } catch (error) {
-                        console.error('Error fetching sorted courses:', error.message);
+                        console.error('Error fetching courses:', error.message);
                     }
-                },
-
-                // Toggle the sorting order and fetch the updated courses
-                toggleSortOrder() {
-                    this.sortOrder = this.sortOrder === "asc" ? "desc" : "asc";
-                    this.fetchSortedCourses();
-                },
-
-                //Enable swapping from ascending to descending
-                toggleSortOrder() {
-                    this.sortOrder = this.sortOrder === "asc" ? "desc" : "asc";
                 },
 
                 //Method to add any item from the course page to the cart page,
@@ -497,6 +484,11 @@
                         console.error('Error removing course from cart:', error.message);
                     });
                 },
+
+                //Enable swapping from ascending to descending
+                toggleSortOrder() {
+                    this.sortOrder = this.sortOrder === "asc" ? "desc" : "asc";
+                },
                 submitForm() {
                     alert(`Order placed successfully!\n\n
                     Name: ${this.firstName} ${this.lastName}\n
@@ -517,20 +509,41 @@
                 },
 
             },
-
-            // Automatically fetch sorted courses when the sortAttribute changes
-            watch: {
-                sortAttribute() {
-                    this.fetchSortedCourses();
-                }
-            },
-
-            // Fetch courses when the app is created
             created() {
-                this.fetchCourses();
+                this.fetchCourses(); // Fetch courses on component creation
             },
 
-            computed: {
+            computed: {                
+                sortCourses() {
+                    // Filter courses based on search query
+                    let filteredCourse = this.courses.filter((subject) => {
+                        let searchLower = this.searchQuery.toLowerCase(); // Convert search query to lowercase for case-insensitive search
+                        return (
+                            subject.name.toLowerCase().includes(searchLower) || // Search within subject name
+                            subject.Location.toLowerCase().includes(searchLower) || // Search within location
+                            String(subject.Price).includes(searchLower) || // Search within price
+                            String(subject.Space).includes(searchLower) // Search within spaces
+                        );
+                    });
+
+                    // Sort the filtered courses
+                    return filteredCourse.slice().sort((a, b) => {
+                        let comparison = 0;
+
+                        if (this.sortAttribute === "name") {
+                            comparison = a.name.localeCompare(b.name.toLowerCase());
+                        } else if (this.sortAttribute === "Location") {
+                            comparison = a.Location.localeCompare(b.Location.toLowerCase());
+                        } else if (this.sortAttribute === "Price") {
+                            comparison = a.Price - b.Price;
+                        } else if (this.sortAttribute === "Space") {
+                            comparison = a.Space - b.Space;
+                        }
+
+                        return this.sortOrder === "asc" ? comparison : -comparison;
+                    });
+                },
+
                 isNameValid() {
                     return /^[a-zA-Z\s]+$/.test(this.name);
                 },
