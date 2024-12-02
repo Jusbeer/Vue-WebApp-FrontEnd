@@ -6,7 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Coursework 1</title>
     <script src="https://cdn.jsdelivr.net/npm/vue@2.6.14/dist/vue.js"></script>
-    <script src="courses.js"></script>
+    <!--<script src="courses.js"></script>-->
 
     <style>
         body{
@@ -391,7 +391,7 @@
                 sortOrder: "asc", // Default sorting order ascending
                 searchQuery: "", // Search input for lessons
                 // An array where we have predefine all the courses
-                courses: courses,
+                courses: [],
                 cart_array: [],  // An array to store all the product added to the cart
                 firstName: '',
                 lastName: '',
@@ -409,7 +409,7 @@
                 fetchCourses(){
                     fetch("http://localhost:3000/collections/courses")
                     .then((response) => response.json())
-                    .then((data) => (this.lessons = data))
+                    .then((data) => (this.courses = data))
                     .catch((error) =>
                         console.error("Error fetching lessons from backend:", error)
                     );
